@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState } from 'react';
 import { GlobalStyle } from './GlobalStyle';
 import { Layot } from './Layot.styled';
 
@@ -7,54 +7,63 @@ import { FeedbackOptions } from './feadbackButtons/FeedbackOptions';
 import { Statistics } from './statistics/Statistics';
 import { Notifications } from './notifications/Notifications';
 
-export class App extends Component {
-  state = {
-    good: 0,
-    neutral: 0,
-    bad: 0,
+export const App = () => {
+  const [good, setGood] = useState(0);
+  const [neutral, setNeutral] = useState(0);
+  const [bad, setBad] = useState(0);
+
+  // state = {
+  //   good: 0,
+  //   neutral: 0,
+  //   bad: 0,
+  // };
+
+  const onLeaveFeedback = state => {
+    switch (state) {
+      case 'good':
+        setGood(good => good + 1);
+        break;
+      case 'neutral':
+        setNeutral(neutral => neutral + 1);
+        break;
+      case 'bad':
+        setBad(bad => bad + 1);
+        break;
+      default:
+        return;
+    }
   };
 
-  onLeaveFeedback = state => {
-    this.setState(prevState => ({
-      [state]: prevState[state] + 1,
-    }));
-  };
-
-  total() {
-    const { good, neutral, bad } = this.state;
+  const total = () => {
     return good + neutral + bad;
-  }
+  };
 
-  positivePercentage() {
-    const { good } = this.state;
-    return Math.round((good / this.total()) * 100);
-  }
+  const positivePercentage = () => {
+    return Math.round((good / total()) * 100);
+  };
 
-  render() {
-    const { good, neutral, bad } = this.state;
-    return (
-      <Layot>
-        <Section title="Please leave feadback">
-          <FeedbackOptions
-            options={['good', 'neutral', 'bad']}
-            onLeaveFeedback={this.onLeaveFeedback}
+  return (
+    <Layot>
+      <Section title="Please leave feadback">
+        <FeedbackOptions
+          options={['good', 'neutral', 'bad']}
+          onLeaveFeedback={onLeaveFeedback}
+        />
+      </Section>
+      <Section title="Statistics">
+        {total() > 0 ? (
+          <Statistics
+            good={good}
+            neutral={neutral}
+            bad={bad}
+            total={total()}
+            positivePercentage={positivePercentage()}
           />
-        </Section>
-        <Section title="Statistics">
-          {this.total() > 0 ? (
-            <Statistics
-              good={good}
-              neutral={neutral}
-              bad={bad}
-              total={this.total()}
-              positivePercentage={this.positivePercentage()}
-            />
-          ) : (
-            <Notifications message="There is no feedback" />
-          )}
-        </Section>
-        <GlobalStyle />
-      </Layot>
-    );
-  }
-}
+        ) : (
+          <Notifications message="There is no feedback" />
+        )}
+      </Section>
+      <GlobalStyle />
+    </Layot>
+  );
+};
